@@ -1,8 +1,9 @@
 /*
   Настройки перед публикацией:
-  1) замените contactEmail на почту, куда должны приходить заявки;
-  2) при необходимости поменяйте название, цены, город, телефон и контакты в index.html;
-  3) форма открывает почтовое приложение пользователя и формирует готовое письмо.
+  1) замените contactEmail на рабочую почту тренера;
+  2) поменяйте название, цены, город, телефон и контакты в index.html;
+  3) форма формирует письмо через почтовое приложение пользователя.
+  Для автоматического приёма заявок без открытия почты подключите CRM или сервис обработки форм.
 */
 const siteConfig = {
   contactEmail: 'hello@example.com',
@@ -12,45 +13,57 @@ const siteConfig = {
 const menuToggle = document.querySelector('.menu-toggle');
 const mainNav = document.querySelector('.main-nav');
 
+function closeMenu() {
+  if (!menuToggle || !mainNav) return;
+  menuToggle.setAttribute('aria-expanded', 'false');
+  mainNav.classList.remove('is-open');
+}
+
 if (menuToggle && mainNav) {
   menuToggle.addEventListener('click', () => {
-    const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
-    menuToggle.setAttribute('aria-expanded', String(!expanded));
-    mainNav.classList.toggle('is-open', !expanded);
+    const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+    menuToggle.setAttribute('aria-expanded', String(!isExpanded));
+    mainNav.classList.toggle('is-open', !isExpanded);
   });
 
   mainNav.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => {
-      menuToggle.setAttribute('aria-expanded', 'false');
-      mainNav.classList.remove('is-open');
-    });
+    link.addEventListener('click', closeMenu);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeMenu();
+  });
+
+  document.addEventListener('click', (event) => {
+    if (
+      menuToggle.getAttribute('aria-expanded') === 'true' &&
+      !mainNav.contains(event.target) &&
+      !menuToggle.contains(event.target)
+    ) {
+      closeMenu();
+    }
   });
 }
 
-// Предзаполняем цель в форме, если посетитель выбрал пакет на карточке стоимости.
+// Выбранный тариф автоматически подставляется в поле цели — без создания повторных option.
 document.querySelectorAll('[data-plan]').forEach((link) => {
   link.addEventListener('click', () => {
     const goal = document.querySelector('#goal-select');
-    if (goal) {
-      const option = document.createElement('option');
-      option.value = link.dataset.plan;
-      option.textContent = link.dataset.plan;
-      option.selected = true;
-      goal.append(option);
-    }
+    if (goal) goal.value = link.dataset.plan;
   });
 });
 
 const leadForm = document.querySelector('#lead-form');
 const feedback = document.querySelector('#form-feedback');
 
-if (leadForm) {
+if (leadForm && feedback) {
   leadForm.addEventListener('submit', (event) => {
     event.preventDefault();
+
     if (!leadForm.reportValidity()) return;
 
     if (!siteConfig.contactEmail || siteConfig.contactEmail === 'hello@example.com') {
-      feedback.textContent = 'Форма готова. Перед публикацией укажите рабочий адрес в файле script.js (contactEmail).';
+      feedback.textContent = 'Демо-режим: укажите рабочую почту тренера в файле script.js перед публикацией.';
       feedback.style.color = '#a15e2e';
       return;
     }
@@ -62,11 +75,11 @@ if (leadForm) {
       `Контакт: ${data.get('contact')}`,
       `Цель: ${data.get('goal')}`,
       `Комментарий: ${data.get('message') || '—'}`
-    ].join('\n'));
+    ].join('\\n'));
 
-    window.location.href = `mailto:${siteConfig.contactEmail}?subject=${subject}&body=${body}`;
     feedback.textContent = 'Открываем почтовое приложение с подготовленной заявкой.';
     feedback.style.color = '#267451';
+    window.location.href = `mailto:${siteConfig.contactEmail}?subject=${subject}&body=${body}`;
   });
 }
 
