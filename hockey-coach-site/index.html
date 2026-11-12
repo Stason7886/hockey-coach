@@ -13,6 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" as="image" href="/hockey-coach/assets/hockey-hero.jpg">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -38,7 +39,7 @@
 
     <main>
       <section class="hero">
-        <div class="hero-photo" role="img" aria-label="Хоккеисты проводят тренировку на ледовой арене"></div>
+        <img class="hero-photo" src="/hockey-coach/assets/hockey-hero.jpg" alt="" aria-hidden="true" fetchpriority="high" loading="eager" decoding="async">
         <div class="hero-shade"></div>
         <div class="container hero-content">
           <div class="hero-copy">
