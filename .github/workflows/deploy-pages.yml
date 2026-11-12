@@ -34,6 +34,14 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Download hero image for the site
+        run: |
+          mkdir -p assets
+          curl --fail --location --retry 3 --retry-delay 2 \
+            'https://images.pexels.com/photos/6468721/pexels-photo-6468721.jpeg?auto=compress&cs=tinysrgb&w=1600' \
+            --output assets/hockey-hero.jpg
+          test "$(wc -c < assets/hockey-hero.jpg)" -gt 10000
+
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
